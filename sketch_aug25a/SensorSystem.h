@@ -22,7 +22,6 @@ public:
             Serial.println("MPU6050 connection failed");
         }
 
-        // Initialize VL53L0X
         if (!this->lox.begin())
         {
             Serial.println(F("Failed to boot VL53L0X"));

@@ -113,7 +113,7 @@ void loop()
       }
     }
   }
-  if (state == "running" and !sensorSystem.exceedsThreshold() and !sensorSystem.distanceExceedsThreshold())
+  if (state == "running" and !sensorSystem.isExceedingThreshold() and !sensorSystem.isDistanceExceedingThreshold())
   {
 
     int level = (frameCount % 170);
