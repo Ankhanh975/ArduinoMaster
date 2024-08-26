@@ -5,12 +5,15 @@ ServoMaster servoMaster;
 SensorSystem sensorSystem;
 
 long frameCount = 0;
+String state = "running";
+int level = 0;
+int delayTime = 2250;
+
 void setup()
 {
-  servoMaster.init();
-
   Serial.begin(9600);
   Serial.println("Starting");
+  servoMaster.init();
 
   servoMaster.setAngleImidiately(0, 90);
   servoMaster.setAngleImidiately(1, 90);
@@ -21,16 +24,14 @@ void setup()
 
   sensorSystem.initialize();
 }
-String state = "running";
-int level = 0;
-int delayTime = 2250;
 
 void loop()
 {
-  delay(int(delayTime / 1000));
+  delay(delayTime / 1000);
   delayMicroseconds(delayTime % 1000);
 
   frameCount += 1;
+
   servoMaster.update();
   sensorSystem.update();
 
@@ -113,10 +114,28 @@ void loop()
       }
     }
   }
-  if (state == "running" and !sensorSystem.isExceedingThreshold() and !sensorSystem.isDistanceExceedingThreshold())
+
+  state = "running";
+  delay(500);
+  bool isExceeding = false;
+
+  isExceeding = sensorSystem.isExceedingThreshold() ? true : (sensorSystem.isExceedingThreshold() ? true : false);
+
+  Serial.print(sensorSystem.isExceedingThreshold());
+  Serial.print(" ");
+  Serial.print(sensorSystem.isDistanceExceedingThreshold());
+  Serial.print(" ");
+  Serial.print(level);
+  Serial.print(" ");
+  Serial.print(isExceeding);
+  Serial.print(" ");
+  Serial.println(state);
+
+  if (state == "running" and !isExceeding)
   {
 
     int level = (frameCount % 170);
+
     if (level == 0)
     {
       servoMaster.setAngle(0, 100);

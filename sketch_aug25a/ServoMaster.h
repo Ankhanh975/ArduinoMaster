@@ -86,7 +86,7 @@ public:
     }
     void setAngle(int servoNum, float angle)
     {
-        int _angle = constrain(angle, 0, 180); // Ensure position is within bounds
+        float _angle = constrain(angle, 0, 180); // Ensure position is within bounds
         this->set_angle[servoNum] = _angle;
     }
 
