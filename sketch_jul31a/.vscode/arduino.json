@@ -1,0 +1,5 @@
+{
+    "board": "LGT:avr:lardu_328p",
+    "sketch": "sketch_jul31a.ino",
+    "port": "COM8"
+}
