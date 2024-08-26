@@ -13,7 +13,10 @@ public:
   {
     // Initialize MPU6050
     Wire.begin();
+    Wire.setClock(400000); // Set I2C clock speed to 400 kHz
+
     this->mpu.initialize();
+    this->mpu.setDLPFMode(0x05);
     if (this->mpu.testConnection())
     {
       Serial.println("MPU6050 connection successful");
@@ -52,7 +55,7 @@ public:
     }
   }
 
-  void getCalibratedData(int16_t &ax, int16_t &ay, int16_t &az, int16_t &gx, int16_t &gy, int16_t &gz)
+  void getCalibratedData(int16_t &ax, int16_t &ay, int16_t &az)
   {
     ax = this->calibratedAx;
     ay = this->calibratedAy;
@@ -99,18 +102,26 @@ private:
 
   void calibrateMPU6050()
   {
-    int16_t ax, ay, az, gx, gy, gz;
-    for (int8_t i = 0; i < 10; i++)
-    {
-      this->mpu.getMotion6(&ax, &ay, &az, &gx, &gy, &gz);
-      this->baselineAx += ax / 16384.0;
-      this->baselineAy += ay / 16384.0;
-      this->baselineAz += -2 + az / 16384.0;
-      delay(10); // Small delay between measurements
-    }
-    this->baselineAx /= 10;
-    this->baselineAy /= 10;
-    this->baselineAz /= 10;
+    // int16_t ax, ay, az, gx, gy, gz;
+    // for (int8_t i = 0; i < 10; i++)
+    // {
+    //   this->mpu.getMotion6(&ax, &ay, &az, &gx, &gy, &gz);
+    //   this->baselineAx += ax / 16384.0;
+    //   this->baselineAy += ay / 16384.0;
+    //   this->baselineAz += -2 + az / 16384.0;
+    //   delay(10); // Small delay between measurements
+    // }
+    // this->baselineAx /= 10;
+    // this->baselineAy /= 10;
+    // this->baselineAz /= 10;
+
+    // 19:24:34.883 Baseline aX = -0.71
+    // 19:24:34.883 -> Baseline aY = -0.10
+    // 19:24:34.883 -> Baseline aZ = -1.24
+
+    this->baselineAx = -0.71;
+    this->baselineAy = -0.10;
+    this->baselineAz = -1.24;
 
     Serial.print("Baseline aX = ");
     Serial.println(this->baselineAx);
@@ -122,8 +133,8 @@ private:
 
   void readMPU6050()
   {
-    int16_t ax, ay, az, gx, gy, gz;
-    this->mpu.getMotion6(&ax, &ay, &az, &gx, &gy, &gz);
+    int16_t ax, ay, az;
+    this->mpu.getAcceleration(&ax, &ay, &az);
     this->calibratedAx = ax / 16384.0 - this->baselineAx;
     this->calibratedAy = ay / 16384.0 - this->baselineAy;
     this->calibratedAz = az / 16384.0 - this->baselineAz;
@@ -153,7 +164,7 @@ private:
   {
     float pitch, roll;
     this->calculatePitchRoll(pitch, roll);
-    this->exceedsThreshold = (abs(pitch) > 10 || abs(roll) > 10);
+    this->exceedsThreshold = (abs(pitch) > 13 || abs(roll) > 13);
   }
 
   void checkDistanceThreshold()
@@ -205,14 +216,14 @@ void loop()
   servoMaster.update();
 
   frameCount += 1;
-  
+
   // plot pitch and roll
-  float pitch, roll;
-  sensorSystem.calculatePitchRoll(pitch, roll);
-  Serial.print("");
-  Serial.print(pitch);
-  Serial.print(", ");
-  Serial.println(roll);
+  // float pitch, roll;
+  // sensorSystem.calculatePitchRoll(pitch, roll);
+  // Serial.print("");
+  // Serial.print(pitch);
+  // Serial.print(", ");
+  // Serial.println(roll);
 
   // Check if pitch or roll exceeds 30 degrees and print a message
   if (sensorSystem.isExceedingThreshold())
@@ -305,7 +316,8 @@ void loop()
       }
     }
   }
-  if (state == "running" and (sensorSystem.isExceedingThreshold() || sensorSystem.isDistanceExceedingThreshold()) ? true : false)
+  // and ((sensorSystem.isExceedingThreshold() || sensorSystem.isDistanceExceedingThreshold()) ? false : true)
+  if (state == "running")
   {
 
     int level = (frameCount % 170);
