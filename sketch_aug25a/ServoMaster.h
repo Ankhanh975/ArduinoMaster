@@ -1,4 +1,6 @@
-#include <Servo.h> // Include the Servo library
+// Can't use Servo.h because it's hardware optimized and doesn't work at all when included with the Wire.h (i2c) library
+// And that hardware optimization on Servo.h is not needed (small harm to the project even)
+#include <Adafruit_SoftServo.h>
 
 int sign(float number)
 {
@@ -14,7 +16,7 @@ class ServoMaster
 private:
     const int numServos = 4; // Number of servos
 
-    Servo servos[4]; // Create an array of Servo objects
+    Adafruit_SoftServo servos[4]; // Create an array of Servo objects
 
     float offsetServos[4] = {4.0, -7.0, -9.0, -6.0};
 
@@ -34,7 +36,7 @@ private:
 
     void attach()
     {
-        for (int i = 0; i < this->numServos; i++)
+        for (int8_t i = 0; i < this->numServos; i++)
         {
             this->servos[i].attach(servoPins[i]);
             int initialPosition = 90;        // Default initial position
@@ -52,7 +54,7 @@ private:
         float _angle = constrain(initialPosition, 0, 180); // Ensure position is within bounds
         float final_pos;
         final_pos = (_angle - 90) * this->angleMultiplier[servoNum] + 90;
-        this->servos[servoNum].write(final_pos);
+        this->servos[servoNum].write(static_cast<uint8_t>(final_pos));
     }
 
 public:
@@ -65,22 +67,23 @@ public:
     void update()
     {
 
-        for (int ii = 0; ii < 4; ii++)
+        for (int8_t ii = 0; ii < 4; ii++)
         {
-            for (int i = 0; i < 2; i++)
+            if (set_angle[ii] != angle[ii])
             {
-                if (set_angle[ii] != angle[ii])
+                for (int8_t i = 0; i < 2; i++)
                 {
                     float speed_multiplier = 1.0;
                     float angle_different = abs(90 - angle[ii]);
                     speed_multiplier = speed_multiplier * mapf(angle_different, 0, this->distance_from_end_to_center, 1, 1 + this->different_between_end_speed_and_center_speed);
                     angle[ii] += sign(set_angle[ii] - angle[ii]) * speed_multiplier;
                     this->write(ii, angle[ii]);
+                    if (set_angle[ii] == angle[ii])
+                    {
+                        break;
+                    }
                 }
-                else
-                {
-                    break;
-                }
+                this->servos[ii].refresh();
             }
         }
     }
