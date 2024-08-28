@@ -24,13 +24,13 @@ private:
 
     float angle[4] = {90.0, 90.0, 90.0, 90.0};
 
-    float angleMultiplier[4] = {0.7, 0.7, 0.7, 0.7};
+    float angleMultiplier[4] = {0.85, 0.85, 0.85, 0.85};
 
     float set_angle[4] = {90.0, 90.0, 90.0, 90.0};
 
     const float different_between_end_speed_and_center_speed = 0.25;
 
-    const float distance_from_end_to_center = 90;
+    const float distance_from_end_to_center = 75;
 
     bool servo_reverse[4] = {false, true, false, true};
 

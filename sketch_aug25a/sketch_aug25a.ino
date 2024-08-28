@@ -32,7 +32,7 @@ void setup()
 }
 String state = "running";
 int level = 0;
-int delayTime = 3300;
+int delayTime = 5000;
 
 void loop()
 {
@@ -42,8 +42,12 @@ void loop()
   // Update sensor data at 60 times per second
   // sensorSystem.update();
   servoMaster.update();
+  servoMaster.update();
+  servoMaster.update();
+  servoMaster.update();
+  servoMaster.update();
 
-  frameCount += 1;
+  frameCount += 5;
 
   // Blink the LED based on pitch, roll, or distance thresholds
   // digitalWrite(ledPin, (sensorSystem.isExceedingThreshold() || sensorSystem.isDistanceExceedingThreshold()) ? HIGH : LOW);
@@ -128,11 +132,11 @@ void loop()
 
   if (state == "running")
   {
-    int8_t level = frameCount % 360;
+    int level = frameCount % (360 + 140);
     if (level == 0)
     {
       servoMaster.setAngle(0, 135);
-      servoMaster.setAngle(2, 0);
+      servoMaster.setAngle(2, 45);
     }
     else if (level == 45)
     {
@@ -141,47 +145,47 @@ void loop()
     }
     else if (level == 80)
     {
-      servoMaster.setAngleImidiately(2, 180);
+      servoMaster.setAngleImidiately(2, 135);
     }
-    else if (level == 90)
+    else if (level == 35 + 90)
     {
       servoMaster.setAngle(0, 45);
       servoMaster.setAngle(3, 90);
     }
-    else if (level == 125)
+    else if (level == 35 + 125)
     {
-      servoMaster.setAngleImidiately(1, 180);
+      servoMaster.setAngleImidiately(1, 135);
     }
-    else if (level == 135)
+    else if (level == 35 + 35 + 135)
     {
       servoMaster.setAngle(0, 0);
       servoMaster.setAngle(3, 45);
     }
-    else if (level == 180)
+    else if (level == 35 + 35 + 180)
     {
-      servoMaster.setAngle(3, 0);
+      servoMaster.setAngle(3, 45);
       servoMaster.setAngle(1, 135);
     }
 
-    if (level == 0 + 180 + 45)
+    if (level == 35 + 35 + 0 + 180 + 45)
     {
       servoMaster.setAngle(1, 90);
       servoMaster.setAngle(2, 135);
     }
-    else if (level == 80 + 180)
+    else if (level == 35 + 35 + 80 + 180)
     {
-      servoMaster.setAngleImidiately(3, 180);
+      servoMaster.setAngleImidiately(3, 135);
     }
-    else if (level == 90 + 180)
+    else if (level == 35 + 35 + 35 + 90 + 180)
     {
       servoMaster.setAngle(1, 45);
       servoMaster.setAngle(2, 90);
     }
-    else if (level == 125 + 180)
+    else if (level == 35 + 35 + 35 + 125 + 180)
     {
-      servoMaster.setAngleImidiately(0, 180);
+      servoMaster.setAngleImidiately(0, 135);
     }
-    else if (level == 135 + 180)
+    else if (level == 35 + 35 + 35 + 35 + 135 + 180)
     {
       servoMaster.setAngle(1, 0);
       servoMaster.setAngle(2, 45);
