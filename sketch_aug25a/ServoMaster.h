@@ -24,13 +24,13 @@ private:
 
     float angle[4] = {90.0, 90.0, 90.0, 90.0};
 
-    float angleMultiplier[4] = {1.50, 1.50, 1.50, 1.50};
+    float angleMultiplier[4] = {0.7, 0.7, 0.7, 0.7};
 
     float set_angle[4] = {90.0, 90.0, 90.0, 90.0};
 
     const float different_between_end_speed_and_center_speed = 0.25;
 
-    const float distance_from_end_to_center = 30;
+    const float distance_from_end_to_center = 90;
 
     bool servo_reverse[4] = {false, true, false, true};
 
@@ -55,7 +55,6 @@ private:
         float final_pos;
         final_pos = (_angle - 90) * this->angleMultiplier[servoNum] + 90;
         this->servos[servoNum].write(final_pos);
-
     }
 
 public:
@@ -72,7 +71,7 @@ public:
         {
             if (set_angle[ii] != angle[ii])
             {
-                for (int8_t i = 0; i < 2; i++)
+                for (int8_t i = 0; i < 1; i++)
                 {
                     float speed_multiplier = 1.0;
                     float angle_different = abs(90 - angle[ii]);
