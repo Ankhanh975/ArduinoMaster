@@ -1,6 +1,6 @@
 // Can't use Servo.h because it's hardware optimized and doesn't work at all when included with the Wire.h (i2c) library
 // And that hardware optimization on Servo.h is not needed (small harm to the project even)
-#include <Adafruit_SoftServo.h>
+#include <Servo.h>
 
 int sign(float number)
 {
@@ -16,7 +16,7 @@ class ServoMaster
 private:
     const int numServos = 4; // Number of servos
 
-    Adafruit_SoftServo servos[4]; // Create an array of Servo objects
+    Servo servos[4]; // Create an array of Servo objects
 
     float offsetServos[4] = {4.0, -7.0, -9.0, -6.0};
 
@@ -54,7 +54,8 @@ private:
         float _angle = constrain(initialPosition, 0, 180); // Ensure position is within bounds
         float final_pos;
         final_pos = (_angle - 90) * this->angleMultiplier[servoNum] + 90;
-        this->servos[servoNum].write(static_cast<uint8_t>(final_pos));
+        this->servos[servoNum].write(final_pos);
+
     }
 
 public:
@@ -83,7 +84,6 @@ public:
                         break;
                     }
                 }
-                this->servos[ii].refresh();
             }
         }
     }
