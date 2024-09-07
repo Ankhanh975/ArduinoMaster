@@ -22,7 +22,7 @@ void task2(void *pvParameter) {
     }
 }
 
-void app_main() {
+void setup() {
     // Initialize serial communication
     Serial.begin(115200);
 
@@ -46,4 +46,9 @@ void app_main() {
         NULL,          // Task handle
         1              // Core 1
     );
+}
+
+void loop() {
+    // The loop function is not used in this case since tasks run on different cores.
+    // You can leave it empty or use it for other tasks if needed.
 }
