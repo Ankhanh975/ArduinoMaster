@@ -32,7 +32,7 @@ void setup()
 }
 String state = "running";
 int level = 0;
-int delayTime = 5000;
+int delayTime = 4000;
 
 void loop()
 {

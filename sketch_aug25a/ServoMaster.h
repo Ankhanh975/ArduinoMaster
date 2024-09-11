@@ -24,7 +24,7 @@ private:
 
     float angle[4] = {90.0, 90.0, 90.0, 90.0};
 
-    float angleMultiplier[4] = {0.85, 0.85, 0.85, 0.85};
+    float angleMultiplier[4] = {0.58, 0.58, 0.58, 0.58};
 
     float set_angle[4] = {90.0, 90.0, 90.0, 90.0};
 
