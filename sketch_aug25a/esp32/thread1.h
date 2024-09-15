@@ -1,7 +1,5 @@
-#include <Wire.h>
 #include <MPU6050.h>
-#include <Adafruit_VL53L0X.h>
-
+#include <VL53L0X.h>
 
 class SensorSystem
 {
@@ -13,7 +11,10 @@ public:
     {
         // Initialize MPU6050
         Wire.begin();
+        Wire.setClock(400000); // Set I2C clock speed to 400 kHz
+
         this->mpu.initialize();
+        this->mpu.setDLPFMode(0x06);
         if (this->mpu.testConnection())
         {
             Serial.println("MPU6050 connection successful");
@@ -24,7 +25,8 @@ public:
         }
 
         // Initialize VL53L0X
-        if (!this->lox.begin())
+        delay(100); // Wait for VL53L0X to boot
+        if (!this->lox.init())
         {
             Serial.println(F("Failed to boot VL53L0X"));
             while (1)
@@ -33,8 +35,9 @@ public:
         Serial.println(F("VL53L0X ready"));
 
         // Set the timing budget to a lower value for high-speed mode (e.g., 20 ms)
-        this->lox.setMeasurementTimingBudgetMicroSeconds(20000); // 20 ms timing budget
-        this->lox.startRangeContinuous(20);
+        this->lox.setMeasurementTimingBudget(5000); // 2 ms timing budget
+        this->lox.startContinuous(0);
+        this->lox.setSignalRateLimit(0.4);
 
         // Calibrate MPU6050
         this->calibrateMPU6050();
@@ -52,7 +55,7 @@ public:
         }
     }
 
-    void getCalibratedData(int16_t &ax, int16_t &ay, int16_t &az, int16_t &gx, int16_t &gy, int16_t &gz)
+    void getCalibratedData(int16_t &ax, int16_t &ay, int16_t &az)
     {
         ax = this->calibratedAx;
         ay = this->calibratedAy;
@@ -81,7 +84,7 @@ public:
 
 private:
     MPU6050 mpu;
-    Adafruit_VL53L0X lox = Adafruit_VL53L0X();
+    VL53L0X lox;
 
     float baselineAx = 0, baselineAy = 0, baselineAz = 0;
     float calibratedAx, calibratedAy, calibratedAz;
@@ -99,18 +102,26 @@ private:
 
     void calibrateMPU6050()
     {
-        int16_t ax, ay, az, gx, gy, gz;
-        for (int i = 0; i < 10; i++)
-        {
-            this->mpu.getMotion6(&ax, &ay, &az, &gx, &gy, &gz);
-            this->baselineAx += ax / 16384.0;
-            this->baselineAy += ay / 16384.0;
-            this->baselineAz += -2 + az / 16384.0;
-            delay(10); // Small delay between measurements
-        }
-        this->baselineAx /= 10;
-        this->baselineAy /= 10;
-        this->baselineAz /= 10;
+        // int16_t ax, ay, az, gx, gy, gz;
+        // for (int8_t i = 0; i < 10; i++)
+        // {
+        //   this->mpu.getMotion6(&ax, &ay, &az, &gx, &gy, &gz);
+        //   this->baselineAx += ax / 16384.0;
+        //   this->baselineAy += ay / 16384.0;
+        //   this->baselineAz += -2 + az / 16384.0;
+        //   delay(10); // Small delay between measurements
+        // }
+        // this->baselineAx /= 10;
+        // this->baselineAy /= 10;
+        // this->baselineAz /= 10;
+
+        // 19:24:34.883 Baseline aX = -0.71
+        // 19:24:34.883 -> Baseline aY = -0.10
+        // 19:24:34.883 -> Baseline aZ = -1.24
+
+        this->baselineAx = -0.71;
+        this->baselineAy = -0.10;
+        this->baselineAz = -1.24;
 
         Serial.print("Baseline aX = ");
         Serial.println(this->baselineAx);
@@ -122,8 +133,8 @@ private:
 
     void readMPU6050()
     {
-        int16_t ax, ay, az, gx, gy, gz;
-        this->mpu.getMotion6(&ax, &ay, &az, &gx, &gy, &gz);
+        int16_t ax, ay, az;
+        this->mpu.getAcceleration(&ax, &ay, &az);
         this->calibratedAx = ax / 16384.0 - this->baselineAx;
         this->calibratedAy = ay / 16384.0 - this->baselineAy;
         this->calibratedAz = az / 16384.0 - this->baselineAz;
@@ -132,7 +143,7 @@ private:
     void readSensors()
     {
         this->readMPU6050();
-        uint16_t distance = this->lox.readRange();
+        uint16_t distance = this->lox.readRangeContinuousMillimeters();
         this->filteredDistance = this->filterDistance(distance);
     }
 
@@ -142,7 +153,7 @@ private:
         this->filterIndex = (this->filterIndex + 1) % this->filterSize;
 
         uint32_t sum = 0;
-        for (int i = 0; i < this->filterSize; i++)
+        for (int8_t i = 0; i < this->filterSize; i++)
         {
             sum += this->distanceReadings[i];
         }
@@ -153,7 +164,7 @@ private:
     {
         float pitch, roll;
         this->calculatePitchRoll(pitch, roll);
-        this->exceedsThreshold = (abs(pitch) > 10 || abs(roll) > 10);
+        this->exceedsThreshold = (abs(pitch) > 13 || abs(roll) > 13);
     }
 
     void checkDistanceThreshold()
@@ -161,60 +172,19 @@ private:
         this->distanceExceedsThreshold = (this->filteredDistance > 100);
     }
 };
-// Define the pin number for the LED
-const int ledPin = 13;
 
-// Create an instance of the SensorSystem class
 SensorSystem sensorSystem;
 
-void setup()
+void thread1_setup()
 {
-    // Initialize serial communication
-    Serial.begin(9600);
-
-    // Initialize the LED pin as an output
-    pinMode(ledPin, OUTPUT);
-
-    // Initialize the sensor system
+    Serial.println("Starting thread 1");
     sensorSystem.initialize();
 }
-
-void loop()
+void thread1_loop()
 {
-    // Update sensor data at 60 times per second
     sensorSystem.update();
-
-    // Get calibrated MPU6050 data
-    int16_t ax, ay, az, gx, gy, gz;
-    sensorSystem.getCalibratedData(ax, ay, az, gx, gy, gz);
-
-    // Get filtered distance
-    uint16_t distance = sensorSystem.readDistance();
-
-    // Calculate pitch and roll
-    float pitch, roll;
-    sensorSystem.calculatePitchRoll(pitch, roll);
-
-    // print pitch, roll;
-    Serial.print("Pitch: ");
-    Serial.println(pitch);
-    Serial.print("Roll: ");
-    Serial.println(roll);
-
-    // Check if pitch or roll exceeds 30 degrees and print a message
-    if (sensorSystem.isExceedingThreshold())
+    if (sensorSystem.isExceedingThreshold() || sensorSystem.isDistanceExceedingThreshold())
     {
-        Serial.println("Pitch or Roll exceeds 10 degrees!");
-    }
-
-    // Check if distance exceeds 50 cm and print a message
-    if (sensorSystem.isDistanceExceedingThreshold())
-    {
-        Serial.println("Distance exceeds 10 cm!");
-    }
-
-    // Blink the LED based on pitch, roll, or distance thresholds
-    digitalWrite(ledPin, (sensorSystem.isExceedingThreshold() || sensorSystem.isDistanceExceedingThreshold()) ? HIGH : LOW);
-
-    delay(14);
+        Serial.println("Threshold exceeded");
+    }    
 }

@@ -10,10 +10,9 @@ ServoMaster servoMaster;
 
 long frameCount = 0;
 
-void setup()
-{
+void setup() {
   servoMaster.init();
-  Serial.begin(9600);
+  Serial.begin(115200);
   Serial.println("Starting");
 
   servoMaster.setAngleImidiately(0, 90);
@@ -21,7 +20,7 @@ void setup()
   servoMaster.setAngleImidiately(2, 90);
   servoMaster.setAngleImidiately(3, 90);
 
-  delay(800);
+  delay(8);
 
   // Initialize the LED pin as an output
   pinMode(ledPin, OUTPUT);
@@ -32,46 +31,35 @@ void setup()
 }
 String state = "running";
 int level = 0;
-int delayTime = 4000;
+int delayTime = 2000;
 
-void loop()
-{
+void loop() {
   delay(delayTime / 1000);
   delayMicroseconds(delayTime % 1000);
 
   // Update sensor data at 60 times per second
   // sensorSystem.update();
   servoMaster.update();
-  servoMaster.update();
-  servoMaster.update();
-  servoMaster.update();
-  servoMaster.update();
 
-  frameCount += 5;
+  frameCount += 1;
 
   // Blink the LED based on pitch, roll, or distance thresholds
   // digitalWrite(ledPin, (sensorSystem.isExceedingThreshold() || sensorSystem.isDistanceExceedingThreshold()) ? HIGH : LOW);
 
-  if (Serial.available() > 0)
-  {
-    String input = Serial.readStringUntil('\n'); // Read input from serial monitor
+  if (Serial.available() > 0) {
+    String input = Serial.readStringUntil('\n');  // Read input from serial monitor
     input.trim();
-    if (input.startsWith("/set"))
-    {
-      if (input.startsWith("/set state "))
-      {
+    if (input.startsWith("/set")) {
+      if (input.startsWith("/set state ")) {
         String set_state = input.substring(11);
-        if (set_state == "start" || set_state == "debug" || set_state == "running" || set_state == "idle" || set_state == "jump")
-        {
+        if (set_state == "start" || set_state == "debug" || set_state == "running" || set_state == "idle" || set_state == "jump") {
           state = set_state;
           delay(100);
           frameCount = 0;
         }
         Serial.print("State set to ");
         Serial.println(state);
-      }
-      else if (input.startsWith("/set angle "))
-      {
+      } else if (input.startsWith("/set angle ")) {
         String set_angle = input.substring(11);
         int servoNum = set_angle.substring(0, 1).toInt();
         int angle = set_angle.substring(2).toInt();
@@ -80,9 +68,7 @@ void loop()
         Serial.print(servoNum);
         Serial.print(" angle set to ");
         Serial.println(angle);
-      }
-      else if (input.startsWith("/set servoOffset "))
-      {
+      } else if (input.startsWith("/set servoOffset ")) {
         String set_servoOffset = input.substring(17);
         int servoNum = set_servoOffset.substring(0, 1).toInt();
         int offset = set_servoOffset.substring(2).toInt();
@@ -91,9 +77,7 @@ void loop()
         Serial.print(servoNum);
         Serial.print(" offset set to ");
         Serial.println(offset);
-      }
-      else if (input.startsWith("/set angleMultiplier "))
-      {
+      } else if (input.startsWith("/set angleMultiplier ")) {
         String set_angleMultiplier = input.substring(21);
         int servoNum = set_angleMultiplier.substring(0, 1).toInt();
         int multiplier = set_angleMultiplier.substring(2).toInt();
@@ -102,9 +86,7 @@ void loop()
         Serial.print(servoNum);
         Serial.print(" multiplier set to ");
         Serial.println(multiplier);
-      }
-      else if (input.startsWith("/set swapServoPin "))
-      {
+      } else if (input.startsWith("/set swapServoPin ")) {
         String set_servoPin = input.substring(14);
         int servoNum = set_servoPin.substring(0, 1).toInt();
         int pin = set_servoPin.substring(2).toInt();
@@ -118,9 +100,7 @@ void loop()
         Serial.print(servoNum);
         Serial.print(" swapped with servo ");
         Serial.println(pin);
-      }
-      else if (input.startsWith("/set delayTime "))
-      {
+      } else if (input.startsWith("/set delayTime ")) {
         String set_delayTime = input.substring(15);
         delayTime = set_delayTime.toInt();
         Serial.print("Delay time set to ");
@@ -129,85 +109,58 @@ void loop()
     }
   }
   // and ((sensorSystem.isExceedingThreshold() || sensorSystem.isDistanceExceedingThreshold()) ? false : true)
+  if (state == "running") {
 
-  if (state == "running")
-  {
-    int level = frameCount % (360 + 140);
-    if (level == 0)
-    {
-      servoMaster.setAngle(0, 135);
-      servoMaster.setAngle(2, 45);
+    int level = (frameCount % 170);
+    if (level == 0) {
+      servoMaster.setAngle(0, 100);
+      servoMaster.setAngle(3, 100);
     }
-    else if (level == 45)
-    {
-      servoMaster.setAngle(0, 90);
-      servoMaster.setAngle(3, 135);
+    if (level == 12) {
+      servoMaster.setAngle(2, 125);
     }
-    else if (level == 80)
-    {
-      servoMaster.setAngleImidiately(2, 135);
+    if (level == 30) {
+      servoMaster.setAngle(0, 80);
+      servoMaster.setAngle(3, 80);
     }
-    else if (level == 35 + 90)
-    {
-      servoMaster.setAngle(0, 45);
-      servoMaster.setAngle(3, 90);
+    if (level == 42) {
+      servoMaster.setAngle(1, 125);
     }
-    else if (level == 35 + 125)
-    {
-      servoMaster.setAngleImidiately(1, 135);
+    if (level == 60) {
+      servoMaster.setAngle(0, 55);
+      servoMaster.setAngle(3, 55);
     }
-    else if (level == 35 + 35 + 135)
-    {
-      servoMaster.setAngle(0, 0);
-      servoMaster.setAngle(3, 45);
+    if (level == 80) {
+      servoMaster.setAngle(1, 100);
+      servoMaster.setAngle(2, 100);
     }
-    else if (level == 35 + 35 + 180)
-    {
-      servoMaster.setAngle(3, 45);
-      servoMaster.setAngle(1, 135);
+    if (level == 92) {
+      servoMaster.setAngle(3, 125);
     }
-
-    if (level == 35 + 35 + 0 + 180 + 45)
-    {
-      servoMaster.setAngle(1, 90);
-      servoMaster.setAngle(2, 135);
+    if (level == 110) {
+      servoMaster.setAngle(1, 80);
+      servoMaster.setAngle(2, 80);
     }
-    else if (level == 35 + 35 + 80 + 180)
-    {
-      servoMaster.setAngleImidiately(3, 135);
+    if (level == 122) {
+      servoMaster.setAngle(0, 125);
     }
-    else if (level == 35 + 35 + 35 + 90 + 180)
-    {
-      servoMaster.setAngle(1, 45);
-      servoMaster.setAngle(2, 90);
+    if (level == 150) {
+      servoMaster.setAngle(1, 55);
+      servoMaster.setAngle(2, 55);
     }
-    else if (level == 35 + 35 + 35 + 125 + 180)
-    {
-      servoMaster.setAngleImidiately(0, 135);
-    }
-    else if (level == 35 + 35 + 35 + 35 + 135 + 180)
-    {
-      servoMaster.setAngle(1, 0);
-      servoMaster.setAngle(2, 45);
-    }
-  }
-  else if (state == "debug")
-  {
+  } else if (state == "debug") {
     servoMaster.setAngle(0, 90);
     servoMaster.setAngle(1, 90);
     servoMaster.setAngle(2, 90);
     servoMaster.setAngle(3, 90);
     state = "idle";
-  }
-  else if (state == "jump")
-  {
+  } else if (state == "jump") {
     servoMaster.setAngle(0, 0);
     servoMaster.setAngle(1, 0);
     servoMaster.setAngle(2, 180);
     servoMaster.setAngle(3, 180);
 
-    for (int8_t i; i < 100; i++)
-    {
+    for (int8_t i; i < 100; i++) {
       delay(5);
       servoMaster.update();
     }

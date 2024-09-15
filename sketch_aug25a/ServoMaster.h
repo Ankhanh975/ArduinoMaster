@@ -14,23 +14,23 @@ float mapf(float x, float in_min, float in_max, float out_min, float out_max)
 class ServoMaster
 {
 private:
-    const int numServos = 4; // Number of servos
+    static const int numServos = 4; // Number of servos
 
     Servo servos[4]; // Create an array of Servo objects
 
-    float offsetServos[4] = {4.0, -7.0, -9.0, -6.0};
+    float offsetServos[4] = {4.0+11.0, -7.0-5.0, -9.0+5.0, -6.0+7.0};
 
     float offsetServosGlobal = +0.0;
 
     float angle[4] = {90.0, 90.0, 90.0, 90.0};
 
-    float angleMultiplier[4] = {0.58, 0.58, 0.58, 0.58};
+    float angleMultiplier[4] = {1.82, 1.82, 1.82, 1.82};
 
     float set_angle[4] = {90.0, 90.0, 90.0, 90.0};
 
     const float different_between_end_speed_and_center_speed = 0.25;
 
-    const float distance_from_end_to_center = 75;
+    const float distance_from_end_to_center = 51;
 
     bool servo_reverse[4] = {false, true, false, true};
 
@@ -55,10 +55,11 @@ private:
         float final_pos;
         final_pos = (_angle - 90) * this->angleMultiplier[servoNum] + 90;
         this->servos[servoNum].write(final_pos);
+
     }
 
 public:
-    int servoPins[4] = {5, 4, 3, 2}; // Pins connected to the servos
+    int servoPins[4] = {5, 4, 2, 3}; // Pins connected to the servos
 
     void init()
     {
@@ -71,9 +72,9 @@ public:
         {
             if (set_angle[ii] != angle[ii])
             {
-                for (int8_t i = 0; i < 1; i++)
+                for (int8_t i = 0; i < 2; i++)
                 {
-                    float speed_multiplier = 1.0;
+                    float speed_multiplier = 0.47;
                     float angle_different = abs(90 - angle[ii]);
                     speed_multiplier = speed_multiplier * mapf(angle_different, 0, this->distance_from_end_to_center, 1, 1 + this->different_between_end_speed_and_center_speed);
                     angle[ii] += sign(set_angle[ii] - angle[ii]) * speed_multiplier;

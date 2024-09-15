@@ -1,4 +1,4 @@
-#include "BluetoothSerial.h"
+#include <BluetoothSerial.h">
 
 // Create a BluetoothSerial object
 BluetoothSerial SerialBT;
