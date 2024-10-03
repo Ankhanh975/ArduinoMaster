@@ -31,7 +31,7 @@ void setup() {
 }
 String state = "running";
 int level = 0;
-int delayTime = 2000;
+int delayTime = 2750;
 
 void loop() {
   delay(delayTime / 1000);

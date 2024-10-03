@@ -18,7 +18,7 @@ private:
 
     Servo servos[4]; // Create an array of Servo objects
 
-    float offsetServos[4] = {4.0+11.0, -7.0-5.0, -9.0+5.0, -6.0+7.0};
+    float offsetServos[4] = {4.0+15.0, -7.0-5.0, -9.0+5.0, -6.0+7.0};
 
     float offsetServosGlobal = +0.0;
 
@@ -74,7 +74,7 @@ public:
             {
                 for (int8_t i = 0; i < 2; i++)
                 {
-                    float speed_multiplier = 0.47;
+                    float speed_multiplier = 0.55;
                     float angle_different = abs(90 - angle[ii]);
                     speed_multiplier = speed_multiplier * mapf(angle_different, 0, this->distance_from_end_to_center, 1, 1 + this->different_between_end_speed_and_center_speed);
                     angle[ii] += sign(set_angle[ii] - angle[ii]) * speed_multiplier;
